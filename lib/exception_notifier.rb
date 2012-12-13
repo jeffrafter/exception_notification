@@ -2,6 +2,8 @@ require 'action_dispatch'
 require 'exception_notifier/notifier'
 
 class ExceptionNotifier
+  class IgnorableError < RuntimeError; end
+
   def self.default_ignore_exceptions
     [].tap do |exceptions|
       exceptions << ::ActiveRecord::RecordNotFound if defined? ::ActiveRecord::RecordNotFound
@@ -35,7 +37,12 @@ class ExceptionNotifier
     options.reverse_merge!(@options)
 
     unless ignored_exception(options[:ignore_exceptions], exception) || from_crawler(options[:ignore_crawlers], env['HTTP_USER_AGENT'])
-      Notifier.exception_notification(env, exception).deliver
+      begin
+        mail = Notifier.exception_notification(env, exception)
+        mail.deliver
+      rescue ExceptionNotifier::IgnorableError
+        # noop
+      end
       env['exception_notifier.delivered'] = true
     end
 
