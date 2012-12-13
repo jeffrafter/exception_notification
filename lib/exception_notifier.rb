@@ -38,8 +38,7 @@ class ExceptionNotifier
 
     unless ignored_exception(options[:ignore_exceptions], exception) || from_crawler(options[:ignore_crawlers], env['HTTP_USER_AGENT'])
       begin
-        mail = Notifier.exception_notification(env, exception)
-        mail.deliver
+        Notifier.exception_notification(env, exception).deliver
       rescue ExceptionNotifier::IgnorableError
         # noop
       end

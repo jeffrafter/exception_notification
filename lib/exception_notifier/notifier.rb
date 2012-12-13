@@ -90,14 +90,12 @@ class ExceptionNotifier
         subject  = compose_subject(exception)
 
         begin
-          message = mail(:to => @options[:exception_recipients], :from => @options[:sender_address], :subject => subject) do |format|
+          mail(:to => @options[:exception_recipients], :from => @options[:sender_address], :subject => subject) do |format|
             format.text { render "#{mailer_name}/background_exception_notification" }
-          end
-          message.deliver
+          end.deliver
         rescue ExceptionNotifier::IgnorableError
           # noop
         end
-
       end
     end
 
