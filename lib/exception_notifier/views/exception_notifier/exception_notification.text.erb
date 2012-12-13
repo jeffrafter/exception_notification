@@ -13,9 +13,8 @@ A <%= @exception.class %> occurred in <%= @kontroller.controller_name %>#<%= @ko
       end
     end
 
-  rescue ExceptionNotifier::IgnorableError
-    raise
   rescue Exception => e
+    raise if e.is_a?(ExceptionNotifier::IgnorableError)
     sections = ["(ERROR: Failed to generate exception summary: %s)" % e.message]
   end
 %>
